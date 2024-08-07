@@ -84,3 +84,9 @@ input {
   display: flex;
   flex-direction: column;
 }
+
+/* New CSS class for the private key */
+.keys {
+  font-size: 0.5em; /* Smaller font size */
+  word-wrap: break-word; /* Ensure long lines break to the next line */
+}

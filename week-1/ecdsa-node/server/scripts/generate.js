@@ -4,37 +4,50 @@ const { keccak256 } = require("ethereum-cryptography/keccak");
 const fs = require('fs');
 
 
-let keyPairs = [];
-
 function generateKeyPairs() {
+    let keyPairs = [];
     for (let i = 0; i < 10 ; i++) {
         let privateKey = secp.secp256k1.utils.randomPrivateKey();
         let publicKey = secp.secp256k1.getPublicKey(privateKey);
-        let address = keccak256(publicKey.slice(1)).slice(keccak256(publicKey.slice(1)).length-20);
+        let hash = keccak256(publicKey.slice(1));
+        let address = '0x' + toHex(hash.slice(-20));
 
-    let keyPair = {
-        privateKey :privateKey,
-        publicKey : publicKey,
-        address: address
-    };
-    keyPairs.push(keyPair);
+        let keyPair = {
+            privateKey: privateKey,
+            publicKey: publicKey,
+            address: address
+        };
+        keyPairs.push(keyPair);
     }
+
+    return keyPairs;
 };
 
-function displayKeyPairs() {
+function generateBalances(keyPairs) {
+    let balances = {};
+
     keyPairs.forEach((pair, index) => {
-        console.log(`Private Key ${index +1}: ${toHex(pair.privateKey)}`);
-        console.log(`Public Key ${index +1}: ${toHex(pair.publicKey)}`);
-        console.log(`Address ${index +1}: ${toHex(pair.address)}`)
+        balances[pair.address] = (index + 1)*100;
     });
+
+
+    return balances;
 }
 
-function saveKeyPairsToFile() {
+// function displayKeyPairs() {
+//     keyPairs.forEach((pair, index) => {
+//         console.log(`Private Key ${index +1}: ${toHex(pair.privateKey)}`);
+//         console.log(`Public Key ${index +1}: ${toHex(pair.publicKey)}`);
+//         console.log(`Address ${index +1}: ${toHex(pair.address)}`)
+//     });
+// }
+
+function saveKeyPairsToFile(keyPairs) {
     let content = '';
     keyPairs.forEach((pair, index) => {
         content += `Private Key ${index +1}: ${toHex(pair.privateKey)}\n`;
         content += `Public Key ${index +1}: ${toHex(pair.publicKey)}\n`;
-        content += `Address ${index +1}: ${toHex(pair.address)}\n`;
+        content += `Address ${index +1}: ${pair.address}\n`;
         content +='\n';
     });
 
@@ -44,6 +57,5 @@ function saveKeyPairsToFile() {
     })
 }
 
-generateKeyPairs();
-displayKeyPairs();
-saveKeyPairsToFile();
+
+module.exports = { generateKeyPairs, generateBalances, saveKeyPairsToFile };
